@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Simulador de Sensores - Testing Tool</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .tester {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        input[type="range"],
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        input[type="range"] {
+            padding: 5px;
+        }
+
+        .value-display {
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: 0.3s;
+        }
+
+        .btn-send {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-send:hover {
+            background: #45a049;
+        }
+
+        .btn-alarm {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-alarm:hover {
+            background: #da190b;
+        }
+
+        .btn-normal {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-normal:hover {
+            background: #0b7dda;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .preset-buttons button {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px;
+            font-size: 0.9em;
+        }
+
+        .info {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #1976d2;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 2px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 Simulador de Sensores</h1>
+            <p>Ferramenta para testar o Dashboard</p>
+        </header>
+
+        <div class="tester">
+            <div class="info">
+                ℹ️ Use essa ferramenta para simular dados dos sensores e testar o dashboard em tempo real.
+            </div>
+
+            <div class="preset-buttons">
+                <button class="btn-normal" onclick="presetNormal()">✅ Dados Normais</button>
+                <button class="btn-alarm" onclick="presetAlarm()">🚨 Disparo de Alarme</button>
+            </div>
+
+            <div class="control-group">
+                <label for="temperatura">Temperatura: <span id="tempValue">28.5</span>°C</label>
+                <input type="range" id="temperatura" min="0" max="50" value="28.5" step="0.1" oninput="updateValue(this)">
+            </div>
+
+            <div class="control-group">
+                <label for="umidade">Umidade: <span id="umidValue">65.0</span>%</label>
+                <input type="range" id="umidade" min="0" max="100" value="65.0" step="0.1" oninput="updateValue(this)">
+            </div>
+
+            <div class="control-group">
+                <label for="vibracao">Vibração: <span id="vibValue">2.5</span> mm/s</label>
+                <input type="range" id="vibracao" min="0" max="10" value="2.5" step="0.1" oninput="updateValue(this)">
+            </div>
+
+            <div class="control-group">
+                <label for="consumo">Consumo Energético: <span id="consumoValue">500.0</span>W</label>
+                <input type="range" id="consumo" min="0" max="1200" value="500.0" step="10" oninput="updateValue(this)">
+            </div>
+
+            <div class="control-group">
+                <label for="corrente">Corrente: <span id="corenteValue">2.2</span>A</label>
+                <input type="range" id="corrente" min="0" max="6" value="2.2" step="0.1" oninput="updateValue(this)">
+            </div>
+
+            <div class="control-group">
+                <label for="volume">Volume de Água: <span id="volValue">85.5</span>L</label>
+                <input type="range" id="volume" min="0" max="100" value="85.5" step="0.5" oninput="updateValue(this)">
+            </div>
+
+            <div class="control-group">
+                <label for="presenca">Presença: 
+                    <span id="presencaValue" style="background: #d4edda; padding: 2px 8px; border-radius: 3px; color: #155724;">Não Detectada</span>
+                </label>
+                <input type="range" id="presenca" min="0" max="1" value="0" step="1" oninput="updatePresenca(this)">
+            </div>
+
+            <div class="control-group">
+                <label for="serverUrl">URL do Servidor:</label>
+                <input type="text" id="serverUrl" value="http://localhost:8080/api/sensor-data" placeholder="http://localhost:8080/api/sensor-data">
+            </div>
+
+            <div class="button-group">
+                <button class="btn-send" onclick="enviarDados()">📤 Enviar Dados</button>
+                <button class="btn-send" onclick="enviarContinuo()">🔄 Auto (2s)</button>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <hr>
+
+            <h3 style="margin-bottom: 10px; color: #333;">JSON que será enviado:</h3>
+            <pre id="jsonPreview" style="
+                background: #f5f5f5;
+                padding: 10px;
+                border-radius: 5px;
+                overflow-x: auto;
+                font-size: 0.85em;
+                color: #333;
+            ">{}</pre>
+        </div>
+    </div>
+
+    <script>
+        let intervaloEnvio = null;
+
+        function updateValue(element) {
+            const id = element.id;
+            const value = parseFloat(element.value);
+            document.getElementById(id + 'Value').textContent = value.toFixed(1);
+            atualizarJSON();
+        }
+
+        function updatePresenca(element) {
+            const value = parseInt(element.value);
+            document.getElementById('presencaValue').textContent = value === 1 ? '🚨 Detectada' : 'Não Detectada';
+            document.getElementById('presencaValue').style.background = value === 1 ? '#ffebee' : '#d4edda';
+            document.getElementById('presencaValue').style.color = value === 1 ? '#c62828' : '#155724';
+            atualizarJSON();
+        }
+
+        function atualizarJSON() {
+            const dados = {
+                temperatura: parseFloat(document.getElementById('temperatura').value),
+                umidade: parseFloat(document.getElementById('umidade').value),
+                vibracao: parseFloat(document.getElementById('vibracao').value),
+                consumo_watts: parseFloat(document.getElementById('consumo').value),
+                corrente_amperes: parseFloat(document.getElementById('corrente').value),
+                presenca_invasao: parseInt(document.getElementById('presenca').value),
+                volume_agua: parseFloat(document.getElementById('volume').value),
+                status_alarme: verificarAlarme() ? 1 : 0
+            };
+            document.getElementById('jsonPreview').textContent = JSON.stringify(dados, null, 2);
+        }
+
+        function verificarAlarme() {
+            const temp = parseFloat(document.getElementById('temperatura').value);
+            const umid = parseFloat(document.getElementById('umidade').value);
+            const vib = parseFloat(document.getElementById('vibracao').value);
+            const cons = parseFloat(document.getElementById('consumo').value);
+            const curr = parseFloat(document.getElementById('corrente').value);
+            const vol = parseFloat(document.getElementById('volume').value);
+            const pres = parseInt(document.getElementById('presenca').value);
+
+            return temp > 40 || umid < 20 || umid > 80 || vib > 7 || 
+                   cons > 1000 || curr > 4.5 || vol < 20 || pres === 1;
+        }
+
+        async function enviarDados() {
+            const url = document.getElementById('serverUrl').value;
+            const dados = {
+                temperatura: parseFloat(document.getElementById('temperatura').value),
+                umidade: parseFloat(document.getElementById('umidade').value),
+                vibracao: parseFloat(document.getElementById('vibracao').value),
+                consumo_watts: parseFloat(document.getElementById('consumo').value),
+                corrente_amperes: parseFloat(document.getElementById('corrente').value),
+                presenca_invasao: parseInt(document.getElementById('presenca').value),
+                volume_agua: parseFloat(document.getElementById('volume').value),
+                status_alarme: verificarAlarme() ? 1 : 0
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                if (response.ok) {
+                    showMessage('✅ Dados enviados com sucesso!', 'success');
+                } else {
+                    showMessage('❌ Erro ' + response.status + ' ao enviar dados', 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Erro de conexão: ' + error.message, 'error');
+            }
+        }
+
+        function enviarContinuo() {
+            if (intervaloEnvio) {
+                clearInterval(intervaloEnvio);
+                intervaloEnvio = null;
+                showMessage('⏹️ Envio automático interrompido', 'success');
+            } else {
+                intervaloEnvio = setInterval(enviarDados, 2000);
+                showMessage('▶️ Enviando dados a cada 2 segundos...', 'success');
+            }
+        }
+
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = text;
+            msgDiv.className = 'message ' + type;
+            setTimeout(() => {
+                msgDiv.className = 'message';
+            }, 5000);
+        }
+
+        function presetNormal() {
+            document.getElementById('temperatura').value = '28.5';
+            document.getElementById('umidade').value = '65.0';
+            document.getElementById('vibracao').value = '2.5';
+            document.getElementById('consumo').value = '500.0';
+            document.getElementById('corrente').value = '2.2';
+            document.getElementById('volume').value = '85.5';
+            document.getElementById('presenca').value = '0';
+            
+            updateValue(document.getElementById('temperatura'));
+            updateValue(document.getElementById('umidade'));
+            updateValue(document.getElementById('vibracao'));
+            updateValue(document.getElementById('consumo'));
+            updateValue(document.getElementById('corrente'));
+            updateValue(document.getElementById('volume'));
+            updatePresenca(document.getElementById('presenca'));
+            
+            showMessage('✅ Preset normal configurado', 'success');
+        }
+
+        function presetAlarm() {
+            document.getElementById('temperatura').value = '45';
+            document.getElementById('umidade').value = '85.0';
+            document.getElementById('vibracao').value = '8.5';
+            document.getElementById('consumo').value = '1100.0';
+            document.getElementById('corrente').value = '5.0';
+            document.getElementById('volume').value = '15.0';
+            document.getElementById('presenca').value = '1';
+            
+            updateValue(document.getElementById('temperatura'));
+            updateValue(document.getElementById('umidade'));
+            updateValue(document.getElementById('vibracao'));
+            updateValue(document.getElementById('consumo'));
+            updateValue(document.getElementById('corrente'));
+            updateValue(document.getElementById('volume'));
+            updatePresenca(document.getElementById('presenca'));
+            
+            showMessage('🚨 Alarmes disparados', 'success');
+        }
+
+        // Inicializar
+        atualizarJSON();
+    </script>
+</body>
+</html>
