@@ -1,0 +1,5 @@
+com/fiap/eca/config/WebSocketConfig.class
+com/fiap/eca/controller/DashboardController.class
+com/fiap/eca/config/SecurityConfig.class
+com/fiap/eca/dto/SensorDataDTO.class
+com/fiap/eca/Application.class

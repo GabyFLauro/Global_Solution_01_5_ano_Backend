@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {
+    RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS
+})
 public class DashboardController {
 
     private final SimpMessagingTemplate messagingTemplate;
@@ -19,21 +21,20 @@ public class DashboardController {
     }
 
     /**
-     * Endpoint para receber dados do ESP32 via JSON
+     * Recebe dados do ESP32 via JSON
      */
     @PostMapping("/sensor-data")
     public ResponseEntity<String> receberDadosSensor(@RequestBody SensorDataDTO sensorData) {
         this.ultimoDado = sensorData;
-        
-        // Broadcast via WebSocket para atualizar dashboard em tempo real
         messagingTemplate.convertAndSend("/topic/sensor-updates", sensorData);
-        
-        System.out.println("Dados recebidos: " + sensorData.getTemperatura() + "°C");
+        System.out.println("Dados recebidos: T=" + sensorData.getTemperatura()
+                + "°C | U=" + sensorData.getUmidade()
+                + "% | Alarme=" + sensorData.getStatusAlarme());
         return ResponseEntity.ok("{\"status\":\"sucesso\"}");
     }
 
     /**
-     * Endpoint para obter os últimos dados dos sensores
+     * Retorna os últimos dados dos sensores
      */
     @GetMapping("/sensor-data")
     public ResponseEntity<SensorDataDTO> obterUltimoDado() {
